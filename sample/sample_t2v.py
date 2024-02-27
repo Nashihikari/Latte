@@ -20,6 +20,7 @@ from pipeline_videogen import VideoGenPipeline
 from models import get_models
 from utils import save_video_grid
 import imageio
+import pdb
 
 def main(args):
     # torch.manual_seed(args.seed)
@@ -29,11 +30,14 @@ def main(args):
     transformer_model = get_models(args).to(device, dtype=torch.float16)
     state_dict = find_model(args.ckpt)
     transformer_model.load_state_dict(state_dict)
-    
+    # pdb.set_trace()
     if args.enable_vae_temporal_decoder:
         vae = AutoencoderKLTemporalDecoder.from_pretrained(args.pretrained_model_path, subfolder="vae_temporal_decoder", torch_dtype=torch.float16).to(device)
     else:
         vae = AutoencoderKL.from_pretrained(args.pretrained_model_path, subfolder="vae", torch_dtype=torch.float16).to(device)
+    #
+    # 
+    # 
     tokenizer = T5Tokenizer.from_pretrained(args.pretrained_model_path, subfolder="tokenizer")
     text_encoder = T5EncoderModel.from_pretrained(args.pretrained_model_path, subfolder="text_encoder", torch_dtype=torch.float16).to(device)
 

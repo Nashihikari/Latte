@@ -1,7 +1,7 @@
 # path:
-ckpt: /path/to/t2v.pt
-save_img_path: "./sample_videos/t2v"
-pretrained_model_path: "/path/to/t2v_required_models"
+ckpt: ./ckpt/t2v.pt
+save_img_path: "./sample_videos/t2v/video_length_16_ss_75/"
+pretrained_model_path: "./t2v_required_models"
 
 # model config: 
 model: LatteT2V
@@ -18,11 +18,11 @@ use_compile: False
 use_fp16: True
 
 # sample config:
-seed:
+seed: 
 run_time: 0
 guidance_scale: 7.5
 sample_method: 'PNDM'
-num_sampling_steps: 50
+num_sampling_steps: 75
 enable_temporal_attentions: True
 enable_vae_temporal_decoder: False # use temporal vae decoder from SVD, maybe reduce the video flicker (It's not widely tested)
 
