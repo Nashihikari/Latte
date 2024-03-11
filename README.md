@@ -22,6 +22,9 @@ This repository contains:
 
 * 🛸 A Latte [training script](train.py) using PyTorch DDP.
 
+## News 
+- (🔥 New) Feb. 24, 2024. 💥 We are very grateful that researchers and developers like our work. We will continue to update our LatteT2V model, hoping that our efforts can help the community develop. We create our Latte discord channels <a href="https://discord.gg/RguYqhVU92" style="text-decoration:none;">
+<img src="https://user-images.githubusercontent.com/25839884/218347213-c080267f-cbb6-443e-8532-8e1ed9a58ea9.png" width="3%" alt="" /></a> for discussions. Coders are welcome to contribute.
 
 
 ## Setup
@@ -81,6 +84,9 @@ Latte models. For example, if you wan to train Latte model on the FaceForensics 
 torchrun --nnodes=1 --nproc_per_node=N train_with_img.py --config ./configs/ffs/ffs_img_train.yaml
 ```
 
+## Contact Us
+**Yaohui Wang**: [wangyaohui@pjlab.org.cn](mailto:wangyaohui@pjlab.org.cn)
+**Xin Ma**: [xin.ma1@monash.edu](mailto:xin.ma1@monash.edu)
 
 ## Citation
 If you find this work useful for your research, please consider citing it.

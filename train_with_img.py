@@ -35,8 +35,7 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 from torch.utils.data.distributed import DistributedSampler
 from utils import (clip_grad_norm_, create_logger, update_ema, 
                    requires_grad, cleanup, create_tensorboard, 
-                   write_tensorboard, setup_distributed, fetch_files_by_numbers,
-                   get_experiment_dir, separation_content_motion,)
+                   write_tensorboard, setup_distributed, get_experiment_dir)
 
 
 #################################################################################
@@ -92,10 +91,7 @@ def main(args):
     requires_grad(ema, False)
     diffusion = create_diffusion(timestep_respacing="")  # default: 1000 steps, linear noise schedule
     # vae = AutoencoderKL.from_pretrained(f"stabilityai/sd-vae-ft-ema").to(device)
-    if args.extras == 78:
-        vae = AutoencoderKL.from_pretrained(args.pretrained_model_path, subfolder="vae").to(device)
-    else:
-        vae = AutoencoderKL.from_pretrained(args.pretrained_model_path, subfolder="sd-vae-ft-mse").to(device)
+    vae = AutoencoderKL.from_pretrained(args.pretrained_model_path, subfolder="sd-vae-ft-mse").to(device)
 
     # # use pretrained model?
     if args.pretrained:
@@ -157,51 +153,16 @@ def main(args):
 
     # set distributed training
     model = DDP(model.to(device), device_ids=[local_rank])
-    
-    if args.extras == 78:
-        text_encoder = TextEmbedder(args.pretrained_model_path, dropout_prob=0.1).to(device)
 
     logger.info(f"Model Parameters: {sum(p.numel() for p in model.parameters()):,}")
     opt = torch.optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0)
 
     # Freeze vae and text_encoder
     vae.requires_grad_(False)
-    if args.extras == 78:
-        text_encoder.requires_grad_(False)
-
-    if args.dataset == 'webvideo2mlaion':
-        # Setup video dataset:
-        file_list = os.listdir(args.image_data_path) # all file format must be the same!
-        file_count = int(len(file_list) / dist.get_world_size())
-        args.laion_meta_files = fetch_files_by_numbers(rank * file_count, file_count, file_list)
-
-        file_list = os.listdir(args.webvideo_data_path) # all file format must be the same!
-        file_count = int(len(file_list) / dist.get_world_size())
-        args.webvideo_meta_files = fetch_files_by_numbers(rank * file_count, file_count, file_list)
-
-    if args.test_run:
-        args.laion_meta_files = ['file_000.csv']
-        args.webvideo_meta_files = ['file_000.csv']
 
     # Setup data:
     dataset = get_dataset(args)
-
-    if args.dataset == 'webvideo2mlaion':
-        sampler = DistributedSampler(
-            dataset,
-            num_replicas=1, # important
-            rank=0, # important
-            shuffle=True,
-            seed=args.global_seed
-    )
-    else:
-        sampler = DistributedSampler(
-        dataset,
-        num_replicas=dist.get_world_size(),
-        rank=rank,
-        shuffle=True,
-        seed=args.global_seed
-    )
+        
     sampler = DistributedSampler(
         dataset,
         num_replicas=dist.get_world_size(),

@@ -160,6 +160,8 @@ class UCF101Images(torch.utils.data.Dataset):
         self.video_num = len(self.video_lists)
 
         # ucf101 video frames
+        self.frame_data_path = configs.frame_data_path # important
+
         self.video_frame_txt = configs.frame_data_txt
         self.video_frame_files = [frame_file.strip() for frame_file in open(self.video_frame_txt)]
         random.shuffle(self.video_frame_files)
@@ -172,7 +174,6 @@ class UCF101Images(torch.utils.data.Dataset):
 
 
     def __getitem__(self, index):
-        # start_time = time.perf_counter()
 
         video_index = index % self.video_num
         path = self.video_lists[video_index]
@@ -184,13 +185,10 @@ class UCF101Images(torch.utils.data.Dataset):
         
         # Sampling video frames
         start_frame_ind, end_frame_ind = self.temporal_sample(total_frames)
-        # print(start_frame_ind)
-        # print(end_frame_ind)
         assert end_frame_ind - start_frame_ind >= self.target_video_len
         frame_indice = np.linspace(start_frame_ind, end_frame_ind-1, self.target_video_len, dtype=int)
-        # print(frame_indice)
-        video = vframes[frame_indice] # 这里没有根据步长取视频帧
-        # print(type(video))
+        video = vframes[frame_indice]
+
         # videotransformer data proprecess
         video = self.transform(video) # T C H W
         images = []
